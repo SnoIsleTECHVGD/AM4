@@ -7,6 +7,7 @@ public class Player : MonoBehaviour
     public int speed;
 
     public Rigidbody2D rb;
+    public SpriteRenderer sr;
 
     void Start()
     {
@@ -18,10 +19,12 @@ public class Player : MonoBehaviour
         if (Input.GetKey(KeyCode.RightArrow))
         {
             rb.velocity = new Vector3(speed, rb.velocity.y, 0);
+            sr.flipX = false;
         }
         else if (Input.GetKey(KeyCode.LeftArrow))
         {
             rb.velocity = new Vector3(-speed, rb.velocity.y, 0);
+            sr.flipX = true;
         }
         else
         {
