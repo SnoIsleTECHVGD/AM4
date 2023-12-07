@@ -47,6 +47,6 @@ public class Player : MonoBehaviour
     }
     void OnCollisionEnter2D(Collision2D collision)
     {
-        Debug.Log(collision.contacts);
+        Debug.Log(collision.contacts[0].point);
     }
 }
