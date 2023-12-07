@@ -7,7 +7,7 @@ public class UiButtons : MonoBehaviour
 {
     public void Play()
     {
-        SceneManager.LoadScene("SampleScene");
+        SceneManager.LoadScene("Screen1");
     }
     public void Quit()
     {
