@@ -20,15 +20,17 @@ public class Player : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.RightArrow) && !onWall[1])
         {
-            xVelocity = Mathf.Min(xVelocity + Time.deltaTime * ease, speed);
+            xVelocity = Mathf.Min(xVelocity + getEase(), speed);
             sr.flipX = false;
+            onWall[0] = false;
         }
         else if (Input.GetKey(KeyCode.LeftArrow) && !onWall[0])
         {
-            xVelocity = Mathf.Max(xVelocity - Time.deltaTime * ease, -speed);
+            xVelocity = Mathf.Max(xVelocity - getEase(), -speed);
             sr.flipX = true;
+            onWall[1] = false;
         }
-        else if (Mathf.Abs(xVelocity) > 0.1f)
+        else if (Mathf.Abs(xVelocity) > 0.05f && inAir)
         {
             xVelocity -= Mathf.Sign(xVelocity) * Time.deltaTime * ease;
         }
@@ -43,11 +45,15 @@ public class Player : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.X) && onWall[0])
         {
-            rb.velocity = new Vector3(speed, jumpForce, 0);
+            xVelocity = speed;
+            onWall[0] = false;
+            rb.velocity = new Vector3(rb.velocity.x, jumpForce, 0);
         }
         else if (Input.GetKeyDown(KeyCode.X) && onWall[1])
         {
-            rb.velocity = new Vector3(-speed, jumpForce, 0);
+            xVelocity = -speed;
+            onWall[1] = false;
+            rb.velocity = new Vector3(rb.velocity.x, jumpForce, 0);
         }
         rb.velocity = new Vector3(xVelocity, rb.velocity.y, 0);
     }
@@ -58,20 +64,24 @@ public class Player : MonoBehaviour
         if (colPoint == new Vector2(0, 1))
         {
             inAir = false;
+            onWall = new bool[] { false, false };
         }
         else if (Mathf.Abs(colPoint.x) == 1)
         {
-            StartCoroutine(HitWall(Mathf.RoundToInt(-colPoint.x / 2 + 0.5f)));
+            onWall[Mathf.RoundToInt(-colPoint.x / 2 + 0.5f)] = true;
+            xVelocity = 0;
         }
     }
 
-    IEnumerator HitWall(int side)
+    float getEase()
     {
-        onWall[side] = true;
-        while (Mathf.Abs(colPoint.x) == 1)
+        if (inAir)
         {
-            yield return 1;
+            return Time.deltaTime * ease;
         }
-        onWall[side] = false;
+        else
+        {
+            return speed;
+        }
     }
 }
