@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 0031b28e8b70408449cb4286f23e8d3b
+guid: 7f617c77f26cc8f4988791a81c5ddc85
 TextureImporter:
   internalIDToNameTable:
   - first:
@@ -135,7 +135,7 @@ TextureImporter:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 26.4
+        width: 42.6
         height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -154,9 +154,9 @@ TextureImporter:
       name: BotWalk_1
       rect:
         serializedVersion: 2
-        x: 26
+        x: 42
         y: 0
-        width: 26
+        width: 42.6
         height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -175,9 +175,9 @@ TextureImporter:
       name: BotWalk_2
       rect:
         serializedVersion: 2
-        x: 52
+        x: 84
         y: 0
-        width: 26.4
+        width: 42.6
         height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -196,9 +196,9 @@ TextureImporter:
       name: BotWalk_3
       rect:
         serializedVersion: 2
-        x: 78
+        x: 126
         y: 0
-        width: 26.4
+        width: 42.6
         height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -217,9 +217,9 @@ TextureImporter:
       name: BotWalk_4
       rect:
         serializedVersion: 2
-        x: 104
+        x: 168
         y: 0
-        width: 26.4
+        width: 42.6
         height: 64
       alignment: 0
       pivot: {x: 0, y: 0}

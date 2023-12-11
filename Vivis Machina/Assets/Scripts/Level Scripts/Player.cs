@@ -15,6 +15,7 @@ public class Player : MonoBehaviour
 
     public Rigidbody2D rb;
     public SpriteRenderer sr;
+    public Animator anim;
 
     void Update()
     {
@@ -23,6 +24,7 @@ public class Player : MonoBehaviour
             xVelocity = Mathf.Min(xVelocity + getEase(), speed);
             sr.flipX = false;
             onWall[0] = false;
+
         }
         else if (Input.GetKey(KeyCode.LeftArrow) && !onWall[0])
         {
@@ -36,6 +38,7 @@ public class Player : MonoBehaviour
         }
         else
         {
+            anim.SetBool("Walking", false);
             xVelocity = 0;
         }
         if (Input.GetKeyDown(KeyCode.X) && !inAir)
@@ -81,6 +84,7 @@ public class Player : MonoBehaviour
         }
         else
         {
+            anim.SetBool("Walking", true);
             return speed;
         }
     }
