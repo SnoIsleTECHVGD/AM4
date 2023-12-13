@@ -6,7 +6,7 @@ AnimationClip:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: BotPush
+  m_Name: BotJump
   serializedVersion: 6
   m_Legacy: 0
   m_Compressed: 0
@@ -20,13 +20,9 @@ AnimationClip:
   m_PPtrCurves:
   - curve:
     - time: 0
-      value: {fileID: -1345239917410336433, guid: a52c36e4336a0864589d3e5246942972, type: 3}
+      value: {fileID: 7755419109157342475, guid: e40f59e8168bd4745931359554a5bc75, type: 3}
     - time: 0.016666668
-      value: {fileID: -1875682994300329165, guid: a52c36e4336a0864589d3e5246942972, type: 3}
-    - time: 0.033333335
-      value: {fileID: 7553193483752279935, guid: a52c36e4336a0864589d3e5246942972, type: 3}
-    - time: 0.05
-      value: {fileID: 1085979307069858770, guid: a52c36e4336a0864589d3e5246942972, type: 3}
+      value: {fileID: 6374281175856385737, guid: e40f59e8168bd4745931359554a5bc75, type: 3}
     attribute: m_Sprite
     path: 
     classID: 212
@@ -46,16 +42,14 @@ AnimationClip:
       customType: 23
       isPPtrCurve: 1
     pptrCurveMapping:
-    - {fileID: -1345239917410336433, guid: a52c36e4336a0864589d3e5246942972, type: 3}
-    - {fileID: -1875682994300329165, guid: a52c36e4336a0864589d3e5246942972, type: 3}
-    - {fileID: 7553193483752279935, guid: a52c36e4336a0864589d3e5246942972, type: 3}
-    - {fileID: 1085979307069858770, guid: a52c36e4336a0864589d3e5246942972, type: 3}
+    - {fileID: 7755419109157342475, guid: e40f59e8168bd4745931359554a5bc75, type: 3}
+    - {fileID: 6374281175856385737, guid: e40f59e8168bd4745931359554a5bc75, type: 3}
   m_AnimationClipSettings:
     serializedVersion: 2
     m_AdditiveReferencePoseClip: {fileID: 0}
     m_AdditiveReferencePoseTime: 0
     m_StartTime: 0
-    m_StopTime: 0.06666667
+    m_StopTime: 0.033333335
     m_OrientationOffsetY: 0
     m_Level: 0
     m_CycleOffset: 0

@@ -8,10 +8,13 @@ public class Player : MonoBehaviour
     public float jumpForce;
     public float ease;
 
+    public static Vector2 pos;
+
     bool inAir;
-    List<Vector2> colPoints;
+    List<Vector2> colPoints = new List<Vector2>();
     bool[] onWall = new bool[] { false, false };
     float xVelocity;
+    string h;
 
     public Rigidbody2D rb;
     public SpriteRenderer sr;
@@ -27,7 +30,7 @@ public class Player : MonoBehaviour
         else
         {
             onWall[0] = true;
-            rb.velocity = new Vector3(0, rb.velocity.y, 0);
+            xVelocity = 0;
             if (colPoints.Contains(new Vector2(0, 1)))
             {
                 onWall[0] = false;
@@ -40,19 +43,11 @@ public class Player : MonoBehaviour
         else
         {
             onWall[1] = true;
-            rb.velocity = new Vector3(0, rb.velocity.y, 0);
+            xVelocity = 0;
             if (colPoints.Contains(new Vector2(0, 1)))
             {
                 onWall[1] = false;
             }
-        }
-        if (colPoints.Contains(new Vector2(0, 1)))
-        {
-            inAir = false;
-        }
-        else
-        {
-            inAir = true;
         }
         //Movement stuff
         if (Input.GetKey(KeyCode.RightArrow) && !onWall[1])
@@ -69,17 +64,14 @@ public class Player : MonoBehaviour
         }
         else if (Mathf.Abs(xVelocity) > 0.05f && inAir)
         {
-            anim.SetBool("Walking", false);
             xVelocity -= Mathf.Sign(xVelocity) * Time.deltaTime * ease;
         }
         else
         {
-            anim.SetBool("Walking", false);
             xVelocity = 0;
         }
         if (Input.GetKeyDown(KeyCode.X) && !inAir)
         {
-            inAir = true;
             rb.velocity = new Vector3(rb.velocity.x, jumpForce, 0);
         }
         else if (Input.GetKeyDown(KeyCode.X) && onWall[0])
@@ -90,23 +82,53 @@ public class Player : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.X) && onWall[1])
         {
+            
             xVelocity = -speed;
             onWall[1] = false;
             rb.velocity = new Vector3(rb.velocity.x, jumpForce, 0);
         }
         rb.velocity = new Vector3(xVelocity, rb.velocity.y, 0);
+        pos = transform.position;
         //Animation stuff
-        if (Input.GetKey(KeyCode.RightArrow) && onWall[1])
+        if (inAir)
         {
-            anim.SetBool("Pushing", true);
+            anim.SetBool("Jumping", true);
+            anim.SetBool("Pushing", false);
+            anim.SetBool("Walking", false);
         }
-        else if (Input.GetKey(KeyCode.LeftArrow) && onWall[0])
+        else if (Input.GetKey(KeyCode.RightArrow))
         {
-            anim.SetBool("Pushing", true);
+            if (onWall[1])
+            {
+                anim.SetBool("Pushing", true);
+                anim.SetBool("Walking", false);
+            }
+            else
+            {
+                anim.SetBool("Walking", true);
+                anim.SetBool("Pushing", false);
+            }
+            anim.SetBool("Jumping", false);
+        }
+        else if (Input.GetKey(KeyCode.LeftArrow))
+        {
+            if (onWall[0])
+            {
+                anim.SetBool("Pushing", true);
+                anim.SetBool("Walking", false);
+            }
+            else
+            {
+                anim.SetBool("Walking", true);
+                anim.SetBool("Pushing", false);
+            }
+            anim.SetBool("Jumping", false);
         }
         else
         {
             anim.SetBool("Pushing", false);
+            anim.SetBool("Walking", false);
+            anim.SetBool("Jumping", false);
         }
     }
 
@@ -120,14 +142,24 @@ public class Player : MonoBehaviour
         CollisionSet(collision);
     }
 
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        inAir = false;
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        inAir = true;
+    }
+
     void CollisionSet(Collision2D collision)
     {
         colPoints = new List<Vector2>();
         for (int value = 0; value < collision.contacts.Length; value++)
         {
-            Debug.Log(collision.contacts[value].normal);
             colPoints.Add(collision.contacts[value].normal);
         }
+        Debug.Log(h);
     }
 
     float getEase()
@@ -138,7 +170,6 @@ public class Player : MonoBehaviour
         }
         else
         {
-            anim.SetBool("Walking", true);
             return speed;
         }
     }
