@@ -11,10 +11,9 @@ public class Player : MonoBehaviour
     public static Vector2 pos;
 
     bool inAir;
-    List<Vector2> colPoints = new List<Vector2>();
+    Vector2 colPoint;
     bool[] onWall = new bool[] { false, false };
     float xVelocity;
-    string h;
 
     public Rigidbody2D rb;
     public SpriteRenderer sr;
@@ -23,7 +22,7 @@ public class Player : MonoBehaviour
     void Update()
     {
         //Collision stuff
-        if (!colPoints.Contains(new Vector2(1, 0)))
+        if (colPoint != new Vector2(1, 0))
         {
             onWall[0] = false;
         }
@@ -31,12 +30,12 @@ public class Player : MonoBehaviour
         {
             onWall[0] = true;
             xVelocity = 0;
-            if (colPoints.Contains(new Vector2(0, 1)))
+            if (colPoint == new Vector2(0, 1))
             {
                 onWall[0] = false;
             }
         }
-        if (!colPoints.Contains(new Vector2(-1, 0)))
+        if (colPoint != new Vector2(-1, 0))
         {
             onWall[1] = false;
         }
@@ -44,7 +43,7 @@ public class Player : MonoBehaviour
         {
             onWall[1] = true;
             xVelocity = 0;
-            if (colPoints.Contains(new Vector2(0, 1)))
+            if (colPoint == new Vector2(0, 1))
             {
                 onWall[1] = false;
             }
@@ -82,7 +81,6 @@ public class Player : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.X) && onWall[1])
         {
-            
             xVelocity = -speed;
             onWall[1] = false;
             rb.velocity = new Vector3(rb.velocity.x, jumpForce, 0);
@@ -134,12 +132,12 @@ public class Player : MonoBehaviour
 
     void OnCollisionStay2D(Collision2D collision)
     {
-        CollisionSet(collision);
+        colPoint = collision.contacts[0].normal;
     }
 
     void OnCollisionExit2D(Collision2D collision)
     {
-        CollisionSet(collision);
+        colPoint = collision.contacts[0].normal;
     }
 
     private void OnTriggerStay2D(Collider2D collision)
@@ -150,17 +148,7 @@ public class Player : MonoBehaviour
     private void OnTriggerExit2D(Collider2D collision)
     {
         inAir = true;
-    }
-
-    void CollisionSet(Collision2D collision)
-    {
-        colPoints = new List<Vector2>();
-        for (int value = 0; value < collision.contacts.Length; value++)
-        {
-            colPoints.Add(collision.contacts[value].normal);
-        }
-        Debug.Log(h);
-    }
+    } 
 
     float getEase()
     {
