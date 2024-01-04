@@ -17,7 +17,6 @@ public class Parallax : MonoBehaviour
 
     void Update()
     {
-        transform.position = new Vector2(CameraMove.pos.x * parallaxScale.x - Mathf.RoundToInt(CameraMove.pos.x * parallaxScale.x / size) * -size, CameraMove.pos.y * parallaxScale.y - yOffset);
-        Debug.Log(CameraMove.pos.x * parallaxScale.x + ", " + CameraMove.pos.x * parallaxScale.x / size);
+        transform.position = new Vector2(CameraMove.pos.x * (parallaxScale.x - 1) - Mathf.RoundToInt(CameraMove.pos.x * (parallaxScale.x - 1) / size) * size + CameraMove.pos.x, CameraMove.pos.y * parallaxScale.y - yOffset);
     }
 }

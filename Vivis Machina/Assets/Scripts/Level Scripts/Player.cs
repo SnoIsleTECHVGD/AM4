@@ -8,6 +8,7 @@ public class Player : MonoBehaviour
     public float jumpForce;
     public float ease;
 
+    public static Vector2 respawnPos;
     public static Vector2 pos;
 
     bool inAir;
@@ -22,7 +23,7 @@ public class Player : MonoBehaviour
     void Update()
     {
         //Collision stuff
-        if (colPoint != new Vector2(1, 0))
+        if (colPoint != new Vector2(1, 0) || Input.GetKey(KeyCode.RightArrow))
         {
             onWall[0] = false;
         }
@@ -30,12 +31,8 @@ public class Player : MonoBehaviour
         {
             onWall[0] = true;
             xVelocity = 0;
-            if (colPoint == new Vector2(0, 1))
-            {
-                onWall[0] = false;
-            }
         }
-        if (colPoint != new Vector2(-1, 0))
+        if (colPoint != new Vector2(-1, 0) || Input.GetKey(KeyCode.LeftArrow))
         {
             onWall[1] = false;
         }
@@ -43,12 +40,12 @@ public class Player : MonoBehaviour
         {
             onWall[1] = true;
             xVelocity = 0;
-            if (colPoint == new Vector2(0, 1))
-            {
-                onWall[1] = false;
-            }
         }
-        //Movement stuff
+        //Control stuff
+        if (Input.GetKey(KeyCode.R))
+        {
+            Respawn();
+        }
         if (Input.GetKey(KeyCode.RightArrow) && !onWall[1])
         {
             xVelocity = Mathf.Min(xVelocity + getEase(), speed);
@@ -90,9 +87,21 @@ public class Player : MonoBehaviour
         //Animation stuff
         if (inAir)
         {
-            anim.SetBool("Jumping", true);
-            anim.SetBool("Pushing", false);
-            anim.SetBool("Walking", false);
+            if (onWall[0] && Input.GetKey(KeyCode.LeftArrow) || onWall[1] && Input.GetKey(KeyCode.RightArrow))
+            {
+                anim.SetBool("Sliding", true);
+                anim.SetBool("Jumping", false);
+                anim.SetBool("Pushing", false);
+                anim.SetBool("Walking", false);
+
+            }
+            else
+            {
+                anim.SetBool("Jumping", true);
+                anim.SetBool("Pushing", false);
+                anim.SetBool("Walking", false);
+                anim.SetBool("Sliding", false);
+            }
         }
         else if (Input.GetKey(KeyCode.RightArrow))
         {
@@ -107,6 +116,7 @@ public class Player : MonoBehaviour
                 anim.SetBool("Pushing", false);
             }
             anim.SetBool("Jumping", false);
+            anim.SetBool("Sliding", false);
         }
         else if (Input.GetKey(KeyCode.LeftArrow))
         {
@@ -121,12 +131,14 @@ public class Player : MonoBehaviour
                 anim.SetBool("Pushing", false);
             }
             anim.SetBool("Jumping", false);
+            anim.SetBool("Sliding", false);
         }
         else
         {
             anim.SetBool("Pushing", false);
             anim.SetBool("Walking", false);
             anim.SetBool("Jumping", false);
+            anim.SetBool("Sliding", false);
         }
     }
 
@@ -137,7 +149,7 @@ public class Player : MonoBehaviour
 
     void OnCollisionExit2D(Collision2D collision)
     {
-        colPoint = collision.contacts[0].normal;
+        colPoint = new Vector2();
     }
 
     private void OnTriggerStay2D(Collider2D collision)
@@ -159,6 +171,21 @@ public class Player : MonoBehaviour
         else
         {
             return speed;
+        }
+    }
+
+    private void Respawn()
+    {
+        transform.position = respawnPos;
+        xVelocity = 0;
+    }
+
+    private void OnTriggerEnter2D(Collider2D col)
+    {
+        if (col.name == "Checkpoint")
+        {
+            respawnPos = col.transform.position;
+            col.GetComponent<SpriteRenderer>().color = Color.green;
         }
     }
 }
