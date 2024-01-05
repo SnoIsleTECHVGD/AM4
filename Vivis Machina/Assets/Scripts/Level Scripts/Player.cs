@@ -7,6 +7,7 @@ public class Player : MonoBehaviour
     public float speed;
     public float jumpForce;
     public float ease;
+    public float wallJumpForce;
 
     public static Vector2 respawnPos;
     public static Vector2 pos;
@@ -23,23 +24,29 @@ public class Player : MonoBehaviour
     void Update()
     {
         //Collision stuff
-        if (colPoint != new Vector2(1, 0) || Input.GetKey(KeyCode.RightArrow))
+        if (colPoint == new Vector2(1, 0) && !Input.GetKey(KeyCode.RightArrow))
+        {
+            onWall[0] = true;
+            if (Input.GetKey(KeyCode.LeftArrow) && xVelocity < 0)
+            {
+                xVelocity = 0;
+            }
+        }
+        else
         {
             onWall[0] = false;
         }
-        else
-        {
-            onWall[0] = true;
-            xVelocity = 0;
-        }
-        if (colPoint != new Vector2(-1, 0) || Input.GetKey(KeyCode.LeftArrow))
-        {
-            onWall[1] = false;
-        }
-        else
+        if (colPoint == new Vector2(-1, 0) && !Input.GetKey(KeyCode.LeftArrow))
         {
             onWall[1] = true;
-            xVelocity = 0;
+            if (Input.GetKey(KeyCode.RightArrow) && xVelocity > 0)
+            {
+                xVelocity = 0;
+            }
+        }
+        else
+        {
+            onWall[1] = false;
         }
         //Control stuff
         if (Input.GetKey(KeyCode.R))
@@ -72,28 +79,29 @@ public class Player : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.X) && onWall[0])
         {
-            xVelocity = speed;
+            xVelocity = speed * wallJumpForce;
             onWall[0] = false;
             rb.velocity = new Vector3(rb.velocity.x, jumpForce, 0);
+            colPoint = new Vector2();
         }
         else if (Input.GetKeyDown(KeyCode.X) && onWall[1])
         {
-            xVelocity = -speed;
+            xVelocity = -speed * wallJumpForce;
             onWall[1] = false;
             rb.velocity = new Vector3(rb.velocity.x, jumpForce, 0);
+            colPoint = new Vector2();
         }
         rb.velocity = new Vector3(xVelocity, rb.velocity.y, 0);
         pos = transform.position;
         //Animation stuff
         if (inAir)
         {
-            if (onWall[0] && Input.GetKey(KeyCode.LeftArrow) || onWall[1] && Input.GetKey(KeyCode.RightArrow))
+            if (onWall[0] || onWall[1])
             {
                 anim.SetBool("Sliding", true);
                 anim.SetBool("Jumping", false);
                 anim.SetBool("Pushing", false);
                 anim.SetBool("Walking", false);
-
             }
             else
             {
@@ -178,6 +186,7 @@ public class Player : MonoBehaviour
     {
         transform.position = respawnPos;
         xVelocity = 0;
+        rb.velocity = new Vector2(0, 0);
     }
 
     private void OnTriggerEnter2D(Collider2D col)
