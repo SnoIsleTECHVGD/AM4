@@ -8,6 +8,7 @@ public class Player : MonoBehaviour
     public float jumpForce;
     public float ease;
     public float wallJumpForce;
+    public int defaultHp;
 
     public static Vector2 respawnPos;
     public static Vector2 pos;
@@ -16,10 +17,18 @@ public class Player : MonoBehaviour
     Vector2 colPoint;
     bool[] onWall = new bool[] { false, false };
     float xVelocity;
+    bool hurtStun;
+    bool invincible;
+    int hp;
 
     public Rigidbody2D rb;
     public SpriteRenderer sr;
     public Animator anim;
+
+    void Start()
+    {
+        hp = defaultHp;
+    }
 
     void Update()
     {
@@ -53,13 +62,13 @@ public class Player : MonoBehaviour
         {
             Respawn();
         }
-        if (Input.GetKey(KeyCode.RightArrow) && !onWall[1])
+        if (Input.GetKey(KeyCode.RightArrow) && !onWall[1] && !hurtStun)
         {
             xVelocity = Mathf.Min(xVelocity + getEase(), speed);
             sr.flipX = false;
             onWall[0] = false;
         }
-        else if (Input.GetKey(KeyCode.LeftArrow) && !onWall[0])
+        else if (Input.GetKey(KeyCode.LeftArrow) && !onWall[0] && !hurtStun)
         {
             xVelocity = Mathf.Max(xVelocity - getEase(), -speed);
             sr.flipX = true;
@@ -73,76 +82,89 @@ public class Player : MonoBehaviour
         {
             xVelocity = 0;
         }
-        if (Input.GetKeyDown(KeyCode.X) && !inAir)
+        if (!hurtStun)
         {
-            rb.velocity = new Vector3(rb.velocity.x, jumpForce, 0);
-        }
-        else if (Input.GetKeyDown(KeyCode.X) && onWall[0])
-        {
-            xVelocity = speed * wallJumpForce;
-            onWall[0] = false;
-            rb.velocity = new Vector3(rb.velocity.x, jumpForce, 0);
-            colPoint = new Vector2();
-        }
-        else if (Input.GetKeyDown(KeyCode.X) && onWall[1])
-        {
-            xVelocity = -speed * wallJumpForce;
-            onWall[1] = false;
-            rb.velocity = new Vector3(rb.velocity.x, jumpForce, 0);
-            colPoint = new Vector2();
+            if (Input.GetKeyDown(KeyCode.X) && !inAir)
+            {
+                rb.velocity = new Vector3(rb.velocity.x, jumpForce, 0);
+            }
+            else if (Input.GetKeyDown(KeyCode.X) && onWall[0])
+            {
+                xVelocity = speed * wallJumpForce;
+                onWall[0] = false;
+                rb.velocity = new Vector3(rb.velocity.x, jumpForce, 0);
+                colPoint = new Vector2();
+            }
+            else if (Input.GetKeyDown(KeyCode.X) && onWall[1])
+            {
+                xVelocity = -speed * wallJumpForce;
+                onWall[1] = false;
+                rb.velocity = new Vector3(rb.velocity.x, jumpForce, 0);
+                colPoint = new Vector2();
+            }
         }
         rb.velocity = new Vector3(xVelocity, rb.velocity.y, 0);
         pos = transform.position;
         //Animation stuff
-        if (inAir)
+        if (!hurtStun)
         {
-            if (onWall[0] || onWall[1])
+            anim.SetBool("Hurt", false);
+            if (inAir)
             {
-                anim.SetBool("Sliding", true);
-                anim.SetBool("Jumping", false);
+                if (onWall[0] || onWall[1])
+                {
+                    anim.SetBool("Sliding", true);
+                    anim.SetBool("Jumping", false);
+                }
+                else
+                {
+                    anim.SetBool("Jumping", true);
+                    anim.SetBool("Sliding", false);
+                }
                 anim.SetBool("Pushing", false);
                 anim.SetBool("Walking", false);
             }
+            else if (Input.GetKey(KeyCode.RightArrow))
+            {
+                if (onWall[1])
+                {
+                    anim.SetBool("Pushing", true);
+                    anim.SetBool("Walking", false);
+                }
+                else
+                {
+                    anim.SetBool("Walking", true);
+                    anim.SetBool("Pushing", false);
+                }
+                anim.SetBool("Jumping", false);
+                anim.SetBool("Sliding", false);
+            }
+            else if (Input.GetKey(KeyCode.LeftArrow))
+            {
+                if (onWall[0])
+                {
+                    anim.SetBool("Pushing", true);
+                    anim.SetBool("Walking", false);
+                }
+                else
+                {
+                    anim.SetBool("Walking", true);
+                    anim.SetBool("Pushing", false);
+                }
+                anim.SetBool("Jumping", false);
+                anim.SetBool("Sliding", false);
+            }
             else
             {
-                anim.SetBool("Jumping", true);
                 anim.SetBool("Pushing", false);
                 anim.SetBool("Walking", false);
+                anim.SetBool("Jumping", false);
                 anim.SetBool("Sliding", false);
             }
         }
-        else if (Input.GetKey(KeyCode.RightArrow))
-        {
-            if (onWall[1])
-            {
-                anim.SetBool("Pushing", true);
-                anim.SetBool("Walking", false);
-            }
-            else
-            {
-                anim.SetBool("Walking", true);
-                anim.SetBool("Pushing", false);
-            }
-            anim.SetBool("Jumping", false);
-            anim.SetBool("Sliding", false);
-        }
-        else if (Input.GetKey(KeyCode.LeftArrow))
-        {
-            if (onWall[0])
-            {
-                anim.SetBool("Pushing", true);
-                anim.SetBool("Walking", false);
-            }
-            else
-            {
-                anim.SetBool("Walking", true);
-                anim.SetBool("Pushing", false);
-            }
-            anim.SetBool("Jumping", false);
-            anim.SetBool("Sliding", false);
-        }
         else
         {
+            anim.SetBool("Hurt", true);
             anim.SetBool("Pushing", false);
             anim.SetBool("Walking", false);
             anim.SetBool("Jumping", false);
@@ -184,9 +206,33 @@ public class Player : MonoBehaviour
 
     private void Respawn()
     {
+        hp = defaultHp;
         transform.position = respawnPos;
         xVelocity = 0;
         rb.velocity = new Vector2(0, 0);
+    }
+
+    IEnumerator Hurt()
+    {
+        hurtStun = true;
+        invincible = true;
+        hp--;
+        for (int value = 0; value < 8; value++)
+        {
+            sr.enabled = false;
+            yield return new WaitForSeconds(0.05f);
+            sr.enabled = true;
+            yield return new WaitForSeconds(0.05f);
+        }
+        hurtStun = false;
+        for (int value = 0; value < 4; value++)
+        {
+            sr.enabled = false;
+            yield return new WaitForSeconds(0.05f);
+            sr.enabled = true;
+            yield return new WaitForSeconds(0.05f);
+        }
+        invincible = false;
     }
 
     private void OnTriggerEnter2D(Collider2D col)
@@ -195,6 +241,17 @@ public class Player : MonoBehaviour
         {
             respawnPos = col.transform.position;
             col.GetComponent<SpriteRenderer>().color = Color.green;
+        }
+        if (col.name == "Boar" && !invincible)
+        {
+            if (hp > 1)
+            {
+                StartCoroutine(Hurt());
+            }
+            else
+            {
+                Respawn();
+            }
         }
     }
 }
