@@ -6,6 +6,7 @@ public class Boar : MonoBehaviour
 {
     public SpriteRenderer sr;
     public Animator anim;
+    public Rigidbody2D rb;
 
     public float speed;
     public float chargeSpeed;
@@ -34,30 +35,34 @@ public class Boar : MonoBehaviour
         }
         if (charging)
         {
-            transform.position += new Vector3(chargeSpeed * direction * Time.deltaTime, 0, 0);
+            rb.velocity = new Vector2(chargeSpeed * direction, rb.velocity.y);
         }
         else if (!alerted)
         {
-            transform.position += new Vector3(speed * direction * Time.deltaTime, 0, 0);
+            rb.velocity = new Vector2(speed * direction, rb.velocity.y);
         }
     }
 
     void OnTriggerEnter2D(Collider2D col)
     {
-        if (direction == 1)
+        if (!col.isTrigger)
         {
-            direction = -1;
-            sr.flipX = true;
-        }
-        else
-        {
-            direction = 1;
-            sr.flipX = false;
+            if (direction == 1)
+            {
+                direction = -1;
+                sr.flipX = true;
+            }
+            else
+            {
+                direction = 1;
+                sr.flipX = false;
+            }
         }
     }
 
     IEnumerator Charge()
     {
+        rb.velocity = new Vector2(0, rb.velocity.y);
         alerted = true;
         anim.SetBool("Alerted", true);
         yield return new WaitForSeconds(1);

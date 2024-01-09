@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
@@ -172,9 +173,20 @@ public class Player : MonoBehaviour
         }
     }
 
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (Mathf.Abs(collision.contacts[0].normal.x) == 1)
+        {
+            xVelocity = 0;
+        }
+    }
+
     void OnCollisionStay2D(Collision2D collision)
     {
-        colPoint = collision.contacts[0].normal;
+        if (Mathf.Abs(collision.contacts[0].normal.x) == 1)
+        {
+            colPoint = collision.contacts[0].normal;
+        }
     }
 
     void OnCollisionExit2D(Collision2D collision)
