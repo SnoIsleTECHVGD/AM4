@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
@@ -171,6 +170,11 @@ public class Player : MonoBehaviour
             anim.SetBool("Jumping", false);
             anim.SetBool("Sliding", false);
         }
+        anim.SetBool("Boogie", false);
+        if (Input.GetKey(KeyCode.B))
+        {
+            anim.SetBool("Boogie", true);
+        }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -183,6 +187,7 @@ public class Player : MonoBehaviour
 
     void OnCollisionStay2D(Collision2D collision)
     {
+        Debug.Log(collision.contacts[0].normal);
         if (Mathf.Abs(collision.contacts[0].normal.x) == 1)
         {
             colPoint = collision.contacts[0].normal;
@@ -196,12 +201,18 @@ public class Player : MonoBehaviour
 
     private void OnTriggerStay2D(Collider2D collision)
     {
-        inAir = false;
+        if (collision.name != "checkpoint")
+        {
+            inAir = false;
+        }
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        inAir = true;
+        if (collision.name != "checkpoint")
+        {
+            inAir = true;
+        }
     } 
 
     float getEase()
@@ -254,7 +265,7 @@ public class Player : MonoBehaviour
             respawnPos = col.transform.position;
             col.GetComponent<SpriteRenderer>().color = Color.green;
         }
-        if (col.name == "Boar" && !invincible)
+        if ((col.name == "Boar" || col.name == "Damage Trigger") && !invincible)
         {
             if (hp > 1)
             {
