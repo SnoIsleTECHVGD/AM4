@@ -20,10 +20,13 @@ public class Player : MonoBehaviour
     bool hurtStun;
     bool invincible;
     int hp;
+    int deadId;
 
     public Rigidbody2D rb;
     public SpriteRenderer sr;
     public Animator anim;
+    public GameObject screenFade;
+    public GameObject particles;
 
     void Start()
     {
@@ -60,7 +63,7 @@ public class Player : MonoBehaviour
         //Control stuff
         if (Input.GetKey(KeyCode.R))
         {
-            Respawn();
+            StartCoroutine(Respawn(0));
         }
         if (Input.GetKey(KeyCode.RightArrow) && !onWall[1] && !hurtStun)
         {
@@ -109,6 +112,7 @@ public class Player : MonoBehaviour
         if (!hurtStun)
         {
             anim.SetBool("Hurt", false);
+            anim.SetInteger("DeadId", 0);
             if (inAir)
             {
                 if (onWall[0] || onWall[1])
@@ -164,7 +168,14 @@ public class Player : MonoBehaviour
         }
         else
         {
-            anim.SetBool("Hurt", true);
+            if (deadId == 0)
+            {
+                anim.SetBool("Hurt", true);
+            }
+            else
+            {
+                anim.SetInteger("DeadId", deadId);
+            }
             anim.SetBool("Pushing", false);
             anim.SetBool("Walking", false);
             anim.SetBool("Jumping", false);
@@ -199,17 +210,44 @@ public class Player : MonoBehaviour
         colPoint = new Vector2();
     }
 
-    private void OnTriggerStay2D(Collider2D collision)
+    private void OnTriggerStay2D(Collider2D col)
     {
-        if (collision.name != "checkpoint")
+        if (deadId == 0)
         {
-            inAir = false;
+            if (!col.isTrigger)
+            {
+                inAir = false;
+            }
+            else if (col.name == "Checkpoint")
+            {
+                respawnPos = col.transform.position;
+                col.GetComponent<SpriteRenderer>().color = Color.green;
+            }
+            else if ((col.name == "Boar" || col.name == "Damage Trigger") && !invincible)
+            {
+                if (hp > 1)
+                {
+                    StartCoroutine(Hurt());
+                }
+                else
+                {
+                    StartCoroutine(Respawn(1));
+                }
+            }
+            else if (col.name == "Kill Trigger")
+            {
+                StartCoroutine(Respawn(0));
+            }
+            else if (col.name == "Spikes")
+            {
+                StartCoroutine(Respawn(2));
+            }
         }
     }
 
-    private void OnTriggerExit2D(Collider2D collision)
+    private void OnTriggerExit2D(Collider2D col)
     {
-        if (collision.name != "checkpoint")
+        if (!col.isTrigger)
         {
             inAir = true;
         }
@@ -227,12 +265,30 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void Respawn()
+    IEnumerator Respawn(int deathType)
     {
+        deadId = deathType + 1;
+        invincible = true;
+        hurtStun = true;
+        yield return new WaitForSeconds(1f);
+        for (float fade = 0; fade < 1; fade += Time.deltaTime)
+        {
+            screenFade.GetComponent<SpriteRenderer>().color = new Color(0, 0, 0, fade);
+            yield return 1;
+        }
         hp = defaultHp;
         transform.position = respawnPos;
         xVelocity = 0;
         rb.velocity = new Vector2(0, 0);
+        yield return new WaitForSeconds(0.25f);
+        deadId = 0;
+        invincible = false;
+        hurtStun = false;
+        for (float fade = 1; fade > 0; fade -= Time.deltaTime)
+        {
+            screenFade.GetComponent<SpriteRenderer>().color = new Color(0, 0, 0, fade);
+            yield return 1;
+        }
     }
 
     IEnumerator Hurt()
@@ -240,6 +296,7 @@ public class Player : MonoBehaviour
         hurtStun = true;
         invincible = true;
         hp--;
+        particles.active = true;
         for (int value = 0; value < 8; value++)
         {
             sr.enabled = false;
@@ -255,26 +312,7 @@ public class Player : MonoBehaviour
             sr.enabled = true;
             yield return new WaitForSeconds(0.05f);
         }
+        particles.active = false;
         invincible = false;
-    }
-
-    private void OnTriggerEnter2D(Collider2D col)
-    {
-        if (col.name == "Checkpoint")
-        {
-            respawnPos = col.transform.position;
-            col.GetComponent<SpriteRenderer>().color = Color.green;
-        }
-        if ((col.name == "Boar" || col.name == "Damage Trigger") && !invincible)
-        {
-            if (hp > 1)
-            {
-                StartCoroutine(Hurt());
-            }
-            else
-            {
-                Respawn();
-            }
-        }
     }
 }
