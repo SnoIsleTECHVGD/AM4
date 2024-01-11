@@ -39,7 +39,7 @@ public class Player : MonoBehaviour
         if (colPoint == new Vector2(1, 0) && !Input.GetKey(KeyCode.RightArrow))
         {
             onWall[0] = true;
-            if (Input.GetKey(KeyCode.LeftArrow) && xVelocity < 0)
+            if (Input.GetKey(KeyCode.LeftArrow) && xVelocity < 0 && inAir)
             {
                 xVelocity = 0;
             }
@@ -51,7 +51,7 @@ public class Player : MonoBehaviour
         if (colPoint == new Vector2(-1, 0) && !Input.GetKey(KeyCode.LeftArrow))
         {
             onWall[1] = true;
-            if (Input.GetKey(KeyCode.RightArrow) && xVelocity > 0)
+            if (Input.GetKey(KeyCode.RightArrow) && xVelocity > 0 && inAir)
             {
                 xVelocity = 0;
             }
@@ -198,10 +198,10 @@ public class Player : MonoBehaviour
 
     void OnCollisionStay2D(Collision2D collision)
     {
-        Debug.Log(collision.contacts[0].normal);
         if (Mathf.Abs(collision.contacts[0].normal.x) == 1)
         {
-            colPoint = collision.contacts[0].normal;
+            colPoint = new Vector2(Mathf.RoundToInt(collision.contacts[0].normal.x), collision.contacts[0].normal.y);
+            Debug.Log(colPoint);
         }
     }
 
@@ -270,6 +270,7 @@ public class Player : MonoBehaviour
         deadId = deathType + 1;
         invincible = true;
         hurtStun = true;
+        particles.active = true;
         yield return new WaitForSeconds(1f);
         for (float fade = 0; fade < 1; fade += Time.deltaTime)
         {
@@ -284,6 +285,7 @@ public class Player : MonoBehaviour
         deadId = 0;
         invincible = false;
         hurtStun = false;
+        particles.active = false;
         for (float fade = 1; fade > 0; fade -= Time.deltaTime)
         {
             screenFade.GetComponent<SpriteRenderer>().color = new Color(0, 0, 0, fade);
