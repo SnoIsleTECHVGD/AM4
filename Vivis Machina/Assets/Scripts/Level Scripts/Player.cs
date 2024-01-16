@@ -12,6 +12,7 @@ public class Player : MonoBehaviour
 
     public static Vector2 respawnPos;
     public static Vector2 pos;
+    public static bool paused;
 
     bool inAir;
     Vector2 colPoint;
@@ -35,6 +36,7 @@ public class Player : MonoBehaviour
 
     void Update()
     {
+        Debug.Log(colPoint);
         //Collision stuff
         if (colPoint == new Vector2(1, 0) && !Input.GetKey(KeyCode.RightArrow))
         {
@@ -61,130 +63,149 @@ public class Player : MonoBehaviour
             onWall[1] = false;
         }
         //Control stuff
-        if (Input.GetKey(KeyCode.R))
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
-            StartCoroutine(Respawn(0));
-        }
-        if (Input.GetKey(KeyCode.RightArrow) && !onWall[1] && !hurtStun)
-        {
-            xVelocity = Mathf.Min(xVelocity + getEase(), speed);
-            sr.flipX = false;
-            onWall[0] = false;
-        }
-        else if (Input.GetKey(KeyCode.LeftArrow) && !onWall[0] && !hurtStun)
-        {
-            xVelocity = Mathf.Max(xVelocity - getEase(), -speed);
-            sr.flipX = true;
-            onWall[1] = false;
-        }
-        else if (Mathf.Abs(xVelocity) > 0.05f && inAir)
-        {
-            xVelocity -= Mathf.Sign(xVelocity) * Time.deltaTime * ease;
-        }
-        else
-        {
-            xVelocity = 0;
-        }
-        if (!hurtStun)
-        {
-            if (Input.GetKeyDown(KeyCode.X) && !inAir)
+            if (paused)
             {
-                rb.velocity = new Vector3(rb.velocity.x, jumpForce, 0);
+                paused = false;
+                rb.simulated = true;
+                screenFade.GetComponent<SpriteRenderer>().color = new Color(0, 0, 0, 0);
             }
-            else if (Input.GetKeyDown(KeyCode.X) && onWall[0])
+            else
             {
-                xVelocity = speed * wallJumpForce;
+                paused = true;
+                rb.simulated = false;
+                screenFade.GetComponent<SpriteRenderer>().color = new Color(0, 0, 0, 0.5f);
+            }
+        }
+        if (!paused)
+        {
+            if (Input.GetKey(KeyCode.R))
+            {
+                StartCoroutine(Respawn(0));
+            }
+            if (Input.GetKey(KeyCode.RightArrow) && !onWall[1] && !hurtStun)
+            {
+                xVelocity = Mathf.Min(xVelocity + getEase(), speed);
+                sr.flipX = false;
                 onWall[0] = false;
-                rb.velocity = new Vector3(rb.velocity.x, jumpForce, 0);
-                colPoint = new Vector2();
             }
-            else if (Input.GetKeyDown(KeyCode.X) && onWall[1])
+            else if (Input.GetKey(KeyCode.LeftArrow) && !onWall[0] && !hurtStun)
             {
-                xVelocity = -speed * wallJumpForce;
+                xVelocity = Mathf.Max(xVelocity - getEase(), -speed);
+                sr.flipX = true;
                 onWall[1] = false;
-                rb.velocity = new Vector3(rb.velocity.x, jumpForce, 0);
-                colPoint = new Vector2();
             }
-        }
-        rb.velocity = new Vector3(xVelocity, rb.velocity.y, 0);
-        pos = transform.position;
-        //Animation stuff
-        if (!hurtStun)
-        {
-            anim.SetBool("Hurt", false);
-            anim.SetInteger("DeadId", 0);
-            if (inAir)
+            else if (Mathf.Abs(xVelocity) > 0.05f && inAir)
             {
-                if (onWall[0] || onWall[1])
+                xVelocity -= Mathf.Sign(xVelocity) * Time.deltaTime * ease;
+            }
+            else
+            {
+                xVelocity = 0;
+            }
+            if (!hurtStun)
+            {
+                if (Input.GetKeyDown(KeyCode.X) && !inAir)
                 {
-                    anim.SetBool("Sliding", true);
-                    anim.SetBool("Jumping", false);
+                    rb.velocity = new Vector3(rb.velocity.x, jumpForce, 0);
                 }
-                else
+                else if (Input.GetKeyDown(KeyCode.X) && onWall[0])
                 {
-                    anim.SetBool("Jumping", true);
+                    xVelocity = speed * wallJumpForce;
+                    onWall[0] = false;
+                    rb.velocity = new Vector3(rb.velocity.x, jumpForce, 0);
+                    colPoint = new Vector2();
+                }
+                else if (Input.GetKeyDown(KeyCode.X) && onWall[1])
+                {
+                    xVelocity = -speed * wallJumpForce;
+                    onWall[1] = false;
+                    rb.velocity = new Vector3(rb.velocity.x, jumpForce, 0);
+                    colPoint = new Vector2();
+                }
+            }
+            rb.velocity = new Vector3(xVelocity, rb.velocity.y, 0);
+
+            pos = transform.position;
+            //Animation stuff
+            if (!hurtStun)
+            {
+                anim.SetBool("Hurt", false);
+                anim.SetInteger("DeadId", 0);
+                if (inAir)
+                {
+                    if (onWall[0] || onWall[1])
+                    {
+                        anim.SetBool("Sliding", true);
+                        anim.SetBool("Jumping", false);
+                    }
+                    else
+                    {
+                        anim.SetBool("Jumping", true);
+                        anim.SetBool("Sliding", false);
+                    }
+                    anim.SetBool("Pushing", false);
+                    anim.SetBool("Walking", false);
+                }
+                else if (Input.GetKey(KeyCode.RightArrow))
+                {
+                    if (onWall[1])
+                    {
+                        anim.SetBool("Pushing", true);
+                        anim.SetBool("Walking", false);
+                    }
+                    else
+                    {
+                        anim.SetBool("Walking", true);
+                        anim.SetBool("Pushing", false);
+                    }
+                    anim.SetBool("Jumping", false);
                     anim.SetBool("Sliding", false);
                 }
-                anim.SetBool("Pushing", false);
-                anim.SetBool("Walking", false);
-            }
-            else if (Input.GetKey(KeyCode.RightArrow))
-            {
-                if (onWall[1])
+                else if (Input.GetKey(KeyCode.LeftArrow))
                 {
-                    anim.SetBool("Pushing", true);
-                    anim.SetBool("Walking", false);
+                    if (onWall[0])
+                    {
+                        anim.SetBool("Pushing", true);
+                        anim.SetBool("Walking", false);
+                    }
+                    else
+                    {
+                        anim.SetBool("Walking", true);
+                        anim.SetBool("Pushing", false);
+                    }
+                    anim.SetBool("Jumping", false);
+                    anim.SetBool("Sliding", false);
                 }
                 else
                 {
-                    anim.SetBool("Walking", true);
                     anim.SetBool("Pushing", false);
-                }
-                anim.SetBool("Jumping", false);
-                anim.SetBool("Sliding", false);
-            }
-            else if (Input.GetKey(KeyCode.LeftArrow))
-            {
-                if (onWall[0])
-                {
-                    anim.SetBool("Pushing", true);
                     anim.SetBool("Walking", false);
+                    anim.SetBool("Jumping", false);
+                    anim.SetBool("Sliding", false);
                 }
-                else
-                {
-                    anim.SetBool("Walking", true);
-                    anim.SetBool("Pushing", false);
-                }
-                anim.SetBool("Jumping", false);
-                anim.SetBool("Sliding", false);
             }
             else
             {
+                if (deadId == 0)
+                {
+                    anim.SetBool("Hurt", true);
+                }
+                else
+                {
+                    anim.SetInteger("DeadId", deadId);
+                }
                 anim.SetBool("Pushing", false);
                 anim.SetBool("Walking", false);
                 anim.SetBool("Jumping", false);
                 anim.SetBool("Sliding", false);
             }
-        }
-        else
-        {
-            if (deadId == 0)
+            anim.SetBool("Boogie", false);
+            if (Input.GetKey(KeyCode.B))
             {
-                anim.SetBool("Hurt", true);
+                anim.SetBool("Boogie", true);
             }
-            else
-            {
-                anim.SetInteger("DeadId", deadId);
-            }
-            anim.SetBool("Pushing", false);
-            anim.SetBool("Walking", false);
-            anim.SetBool("Jumping", false);
-            anim.SetBool("Sliding", false);
-        }
-        anim.SetBool("Boogie", false);
-        if (Input.GetKey(KeyCode.B))
-        {
-            anim.SetBool("Boogie", true);
         }
     }
 
@@ -198,10 +219,10 @@ public class Player : MonoBehaviour
 
     void OnCollisionStay2D(Collision2D collision)
     {
+        Debug.Log(new Vector2(Mathf.RoundToInt(collision.contacts[0].normal.x), collision.contacts[0].normal.y));
         if (Mathf.Abs(collision.contacts[0].normal.x) == 1)
         {
             colPoint = new Vector2(Mathf.RoundToInt(collision.contacts[0].normal.x), collision.contacts[0].normal.y);
-            Debug.Log(colPoint);
         }
     }
 

@@ -33,13 +33,20 @@ public class Boar : MonoBehaviour
             alerted = false;
             anim.SetBool("Charge", false);
         }
-        if (charging)
+        if (!Player.paused)
         {
-            rb.velocity = new Vector2(chargeSpeed * direction, rb.velocity.y);
+            if (charging)
+            {
+                rb.velocity = new Vector2(chargeSpeed * direction, rb.velocity.y);
+            }
+            else if (!alerted)
+            {
+                rb.velocity = new Vector2(speed * direction, rb.velocity.y);
+            }
         }
-        else if (!alerted)
+        else
         {
-            rb.velocity = new Vector2(speed * direction, rb.velocity.y);
+            rb.velocity = Vector2.zero;
         }
     }
 
