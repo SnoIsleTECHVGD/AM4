@@ -33,6 +33,8 @@ public class Player : MonoBehaviour
     public GameObject particles;
     public GameObject pauseMenu;
     public GameObject camera;
+    public SpriteRenderer healthBarSr;
+    public Sprite[] healthBars;
 
     void Start()
     {
@@ -337,6 +339,8 @@ public class Player : MonoBehaviour
         hurtStun = true;
         invincible = true;
         hp--;
+        healthBarSr.color = Color.white;
+        healthBarSr.sprite = healthBars[hp - 1];
         particles.active = true;
         for (int value = 0; value < 8; value++)
         {
@@ -355,5 +359,6 @@ public class Player : MonoBehaviour
         }
         particles.active = false;
         invincible = false;
+        healthBarSr.color = new Color(0, 0, 0, 0);
     }
 }
