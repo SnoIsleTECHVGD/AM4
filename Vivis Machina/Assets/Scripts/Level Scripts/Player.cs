@@ -35,7 +35,6 @@ public class Player : MonoBehaviour
     public GameObject camera;
     public SpriteRenderer healthBarSr;
     public Sprite[] healthBars;
-
     void Start()
     {
         hp = defaultHp;
@@ -47,6 +46,7 @@ public class Player : MonoBehaviour
         if (colPoint.x == 1 && !Input.GetKey(KeyCode.RightArrow))
         {
             onWall[0] = true;
+            sr.flipX = true;
             if (Input.GetKey(KeyCode.LeftArrow) && xVelocity < 0 && inAir)
             {
                 xVelocity = 0;
@@ -59,6 +59,7 @@ public class Player : MonoBehaviour
         if (colPoint.x == -1 && !Input.GetKey(KeyCode.LeftArrow))
         {
             onWall[1] = true;
+            sr.flipX = false;
             if (Input.GetKey(KeyCode.RightArrow) && xVelocity > 0 && inAir)
             {
                 xVelocity = 0;
