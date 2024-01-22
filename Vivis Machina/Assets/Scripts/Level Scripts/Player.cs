@@ -22,6 +22,7 @@ public class Player : MonoBehaviour
     bool invincible;
     int hp;
     int deadId;
+    bool pushingRb;
 
     public Rigidbody2D rb;
     public SpriteRenderer sr;
@@ -36,7 +37,6 @@ public class Player : MonoBehaviour
 
     void Update()
     {
-        Debug.Log(colPoint);
         //Collision stuff
         if (colPoint == new Vector2(1, 0) && !Input.GetKey(KeyCode.RightArrow))
         {
@@ -84,13 +84,13 @@ public class Player : MonoBehaviour
             {
                 StartCoroutine(Respawn(0));
             }
-            if (Input.GetKey(KeyCode.RightArrow) && !onWall[1] && !hurtStun)
+            if (Input.GetKey(KeyCode.RightArrow) && (!onWall[1] || pushingRb) && !hurtStun)
             {
                 xVelocity = Mathf.Min(xVelocity + getEase(), speed);
                 sr.flipX = false;
                 onWall[0] = false;
             }
-            else if (Input.GetKey(KeyCode.LeftArrow) && !onWall[0] && !hurtStun)
+            else if (Input.GetKey(KeyCode.LeftArrow) && (!onWall[0] || pushingRb) && !hurtStun)
             {
                 xVelocity = Mathf.Max(xVelocity - getEase(), -speed);
                 sr.flipX = true;
@@ -126,7 +126,6 @@ public class Player : MonoBehaviour
                 }
             }
             rb.velocity = new Vector3(xVelocity, rb.velocity.y, 0);
-
             pos = transform.position;
             //Animation stuff
             if (!hurtStun)
@@ -211,7 +210,7 @@ public class Player : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (Mathf.Abs(collision.contacts[0].normal.x) == 1)
+        if (Mathf.Abs(collision.contacts[0].normal.x) == 1 && (collision.gameObject.tag != "Movable" || inAir))
         {
             xVelocity = 0;
         }
@@ -219,10 +218,21 @@ public class Player : MonoBehaviour
 
     void OnCollisionStay2D(Collision2D collision)
     {
-        Debug.Log(new Vector2(Mathf.RoundToInt(collision.contacts[0].normal.x), collision.contacts[0].normal.y));
-        if (Mathf.Abs(collision.contacts[0].normal.x) == 1)
+        if (Mathf.Abs(collision.contacts[0].normal.x) > 0.8)
         {
             colPoint = new Vector2(Mathf.RoundToInt(collision.contacts[0].normal.x), collision.contacts[0].normal.y);
+            if (collision.gameObject.tag == "Movable")
+            {
+                if (!inAir)
+                {
+                    pushingRb = true;
+                }
+            }
+            else
+            {
+                pushingRb = false;
+            }
+            Debug.Log(collision.contacts[0].normal + ", " + onWall[0]);
         }
     }
 
@@ -272,7 +282,7 @@ public class Player : MonoBehaviour
         {
             inAir = true;
         }
-    } 
+    }
 
     float getEase()
     {
