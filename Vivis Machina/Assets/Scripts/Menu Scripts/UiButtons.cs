@@ -17,4 +17,17 @@ public class UiButtons : MonoBehaviour
     {
         SceneManager.LoadScene("Credits");
     }
+    public void Resume()
+    {
+        Player.unpause = true;
+    }
+    public void Respawn()
+    {
+        Player.respawn = true;
+        Player.unpause = true;
+    }
+    public void QuitPlay()
+    {
+        SceneManager.LoadScene("Title");
+    }
 }

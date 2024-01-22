@@ -13,6 +13,8 @@ public class Player : MonoBehaviour
     public static Vector2 respawnPos;
     public static Vector2 pos;
     public static bool paused;
+    public static bool respawn;
+    public static bool unpause;
 
     bool inAir;
     Vector2 colPoint;
@@ -29,6 +31,8 @@ public class Player : MonoBehaviour
     public Animator anim;
     public GameObject screenFade;
     public GameObject particles;
+    public GameObject pauseMenu;
+    public GameObject camera;
 
     void Start()
     {
@@ -63,27 +67,32 @@ public class Player : MonoBehaviour
             onWall[1] = false;
         }
         //Control stuff
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape) || unpause)
         {
             if (paused)
             {
+                unpause = false;
                 paused = false;
                 rb.simulated = true;
                 screenFade.GetComponent<SpriteRenderer>().color = new Color(0, 0, 0, 0);
+                Destroy(GameObject.Find("Pause(Clone)"));
             }
             else
             {
                 paused = true;
                 rb.simulated = false;
                 screenFade.GetComponent<SpriteRenderer>().color = new Color(0, 0, 0, 0.5f);
+                Instantiate(pauseMenu, camera.transform);
             }
+        }
+        if (respawn)
+        {
+            StartCoroutine(Respawn(0));
+            respawn = false;
+            paused = false;
         }
         if (!paused)
         {
-            if (Input.GetKey(KeyCode.R))
-            {
-                StartCoroutine(Respawn(0));
-            }
             if (Input.GetKey(KeyCode.RightArrow) && (!onWall[1] || pushingRb) && !hurtStun)
             {
                 xVelocity = Mathf.Min(xVelocity + getEase(), speed);
@@ -297,8 +306,11 @@ public class Player : MonoBehaviour
         deadId = deathType + 1;
         invincible = true;
         hurtStun = true;
-        particles.active = true;
-        yield return new WaitForSeconds(1f);
+        if (deathType != 0)
+        {
+            particles.active = true;
+            yield return new WaitForSeconds(1f);
+        }
         for (float fade = 0; fade < 1; fade += Time.deltaTime)
         {
             screenFade.GetComponent<SpriteRenderer>().color = new Color(0, 0, 0, fade);
