@@ -1,16 +1,7 @@
 fileFormatVersion: 2
-guid: 145a87b0170abf44f924c2bd00ca34e6
+guid: 046bba9522b920143bd4bac3c8e5b0c0
 TextureImporter:
-  internalIDToNameTable:
-  - first:
-      213: 7248117066573051514
-    second: elevator_tilemap_0
-  - first:
-      213: -6310581512975504273
-    second: elevator_tilemap_1
-  - first:
-      213: 2739829148807754025
-    second: elevator_tilemap_2
+  internalIDToNameTable: []
   externalObjects: {}
   serializedVersion: 11
   mipmaps:
@@ -122,70 +113,7 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites:
-    - serializedVersion: 2
-      name: elevator_tilemap_0
-      rect:
-        serializedVersion: 2
-        x: 80
-        y: 71
-        width: 25
-        height: 80
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: a767883e11c769460800000000000000
-      internalID: 7248117066573051514
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: elevator_tilemap_1
-      rect:
-        serializedVersion: 2
-        x: 132
-        y: 23
-        width: 6
-        height: 127
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: f6ca2f08c8f4c68a0800000000000000
-      internalID: -6310581512975504273
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: elevator_tilemap_2
-      rect:
-        serializedVersion: 2
-        x: 6
-        y: 16
-        width: 72
-        height: 138
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 92172f73814d50620800000000000000
-      internalID: 2739829148807754025
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
+    sprites: []
     outline: []
     physicsShape: []
     bones: []
