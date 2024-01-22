@@ -38,7 +38,7 @@ public class Player : MonoBehaviour
     void Update()
     {
         //Collision stuff
-        if (colPoint == new Vector2(1, 0) && !Input.GetKey(KeyCode.RightArrow))
+        if (colPoint.x == 1 && !Input.GetKey(KeyCode.RightArrow))
         {
             onWall[0] = true;
             if (Input.GetKey(KeyCode.LeftArrow) && xVelocity < 0 && inAir)
@@ -50,7 +50,7 @@ public class Player : MonoBehaviour
         {
             onWall[0] = false;
         }
-        if (colPoint == new Vector2(-1, 0) && !Input.GetKey(KeyCode.LeftArrow))
+        if (colPoint.x == -1 && !Input.GetKey(KeyCode.LeftArrow))
         {
             onWall[1] = true;
             if (Input.GetKey(KeyCode.RightArrow) && xVelocity > 0 && inAir)
@@ -221,18 +221,14 @@ public class Player : MonoBehaviour
         if (Mathf.Abs(collision.contacts[0].normal.x) > 0.8)
         {
             colPoint = new Vector2(Mathf.RoundToInt(collision.contacts[0].normal.x), collision.contacts[0].normal.y);
-            if (collision.gameObject.tag == "Movable")
+            if (collision.gameObject.tag == "Movable" && !inAir)
             {
-                if (!inAir)
-                {
-                    pushingRb = true;
-                }
+                pushingRb = true;
             }
             else
             {
                 pushingRb = false;
             }
-            Debug.Log(collision.contacts[0].normal + ", " + onWall[0]);
         }
     }
 
