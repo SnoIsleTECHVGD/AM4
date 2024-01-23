@@ -260,7 +260,6 @@ public class Player : MonoBehaviour
             else if (col.name == "Checkpoint")
             {
                 respawnPos = col.transform.position;
-                col.GetComponent<SpriteRenderer>().color = Color.green;
             }
             else if ((col.name == "Boar" || col.name == "Damage Trigger") && !invincible)
             {
