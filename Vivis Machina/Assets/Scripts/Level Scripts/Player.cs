@@ -25,16 +25,20 @@ public class Player : MonoBehaviour
     int hp;
     int deadId;
     bool pushingRb;
+    bool control = true;
 
     public Rigidbody2D rb;
     public SpriteRenderer sr;
     public Animator anim;
-    public GameObject screenFade;
+    public SpriteRenderer screenFade;
     public GameObject particles;
     public GameObject pauseMenu;
     public GameObject camera;
     public SpriteRenderer healthBarSr;
     public Sprite[] healthBars;
+    public GameObject end;
+    public GameObject exit;
+
     void Start()
     {
         hp = defaultHp;
@@ -70,152 +74,155 @@ public class Player : MonoBehaviour
             onWall[1] = false;
         }
         //Control stuff
-        if (Input.GetKeyDown(KeyCode.Escape) || unpause)
+        if (control)
         {
-            if (paused)
+            if (Input.GetKeyDown(KeyCode.Escape) || unpause)
             {
-                unpause = false;
+                if (paused)
+                {
+                    unpause = false;
+                    paused = false;
+                    rb.simulated = true;
+                    screenFade.color = new Color(0, 0, 0, 0);
+                    Destroy(GameObject.Find("Pause(Clone)"));
+                }
+                else
+                {
+                    paused = true;
+                    rb.simulated = false;
+                    screenFade.color = new Color(0, 0, 0, 0.5f);
+                    Instantiate(pauseMenu, camera.transform);
+                }
+            }
+            if (respawn)
+            {
+                StartCoroutine(Respawn(0));
+                respawn = false;
                 paused = false;
-                rb.simulated = true;
-                screenFade.GetComponent<SpriteRenderer>().color = new Color(0, 0, 0, 0);
-                Destroy(GameObject.Find("Pause(Clone)"));
             }
-            else
+            if (!paused)
             {
-                paused = true;
-                rb.simulated = false;
-                screenFade.GetComponent<SpriteRenderer>().color = new Color(0, 0, 0, 0.5f);
-                Instantiate(pauseMenu, camera.transform);
-            }
-        }
-        if (respawn)
-        {
-            StartCoroutine(Respawn(0));
-            respawn = false;
-            paused = false;
-        }
-        if (!paused)
-        {
-            if (Input.GetKey(KeyCode.RightArrow) && (!onWall[1] || pushingRb) && !hurtStun)
-            {
-                xVelocity = Mathf.Min(xVelocity + getEase(), speed);
-                sr.flipX = false;
-                onWall[0] = false;
-            }
-            else if (Input.GetKey(KeyCode.LeftArrow) && (!onWall[0] || pushingRb) && !hurtStun)
-            {
-                xVelocity = Mathf.Max(xVelocity - getEase(), -speed);
-                sr.flipX = true;
-                onWall[1] = false;
-            }
-            else if (Mathf.Abs(xVelocity) > 0.05f && inAir)
-            {
-                xVelocity -= Mathf.Sign(xVelocity) * Time.deltaTime * ease;
-            }
-            else
-            {
-                xVelocity = 0;
-            }
-            if (!hurtStun)
-            {
-                if (Input.GetKeyDown(KeyCode.X) && !inAir)
+                if (Input.GetKey(KeyCode.RightArrow) && (!onWall[1] || pushingRb) && !hurtStun)
                 {
-                    rb.velocity = new Vector3(rb.velocity.x, jumpForce, 0);
-                }
-                else if (Input.GetKeyDown(KeyCode.X) && onWall[0])
-                {
-                    xVelocity = speed * wallJumpForce;
+                    xVelocity = Mathf.Min(xVelocity + getEase(), speed);
+                    sr.flipX = false;
                     onWall[0] = false;
-                    rb.velocity = new Vector3(rb.velocity.x, jumpForce, 0);
-                    colPoint = new Vector2();
                 }
-                else if (Input.GetKeyDown(KeyCode.X) && onWall[1])
+                else if (Input.GetKey(KeyCode.LeftArrow) && (!onWall[0] || pushingRb) && !hurtStun)
                 {
-                    xVelocity = -speed * wallJumpForce;
+                    xVelocity = Mathf.Max(xVelocity - getEase(), -speed);
+                    sr.flipX = true;
                     onWall[1] = false;
-                    rb.velocity = new Vector3(rb.velocity.x, jumpForce, 0);
-                    colPoint = new Vector2();
                 }
-            }
-            rb.velocity = new Vector3(xVelocity, rb.velocity.y, 0);
-            pos = transform.position;
-            //Animation stuff
-            if (!hurtStun)
-            {
-                anim.SetBool("Hurt", false);
-                anim.SetInteger("DeadId", 0);
-                if (inAir)
+                else if (Mathf.Abs(xVelocity) > 0.05f && inAir)
                 {
-                    if (onWall[0] || onWall[1])
+                    xVelocity -= Mathf.Sign(xVelocity) * Time.deltaTime * ease;
+                }
+                else
+                {
+                    xVelocity = 0;
+                }
+                if (!hurtStun)
+                {
+                    if (Input.GetKeyDown(KeyCode.X) && !inAir)
                     {
-                        anim.SetBool("Sliding", true);
-                        anim.SetBool("Jumping", false);
+                        rb.velocity = new Vector3(rb.velocity.x, jumpForce, 0);
                     }
-                    else
+                    else if (Input.GetKeyDown(KeyCode.X) && onWall[0])
                     {
-                        anim.SetBool("Jumping", true);
+                        xVelocity = speed * wallJumpForce;
+                        onWall[0] = false;
+                        rb.velocity = new Vector3(rb.velocity.x, jumpForce, 0);
+                        colPoint = new Vector2();
+                    }
+                    else if (Input.GetKeyDown(KeyCode.X) && onWall[1])
+                    {
+                        xVelocity = -speed * wallJumpForce;
+                        onWall[1] = false;
+                        rb.velocity = new Vector3(rb.velocity.x, jumpForce, 0);
+                        colPoint = new Vector2();
+                    }
+                }
+                rb.velocity = new Vector3(xVelocity, rb.velocity.y, 0);
+                pos = transform.position;
+                //Animation stuff
+                if (!hurtStun)
+                {
+                    anim.SetBool("Hurt", false);
+                    anim.SetInteger("DeadId", 0);
+                    if (inAir)
+                    {
+                        if (onWall[0] || onWall[1])
+                        {
+                            anim.SetBool("Sliding", true);
+                            anim.SetBool("Jumping", false);
+                        }
+                        else
+                        {
+                            anim.SetBool("Jumping", true);
+                            anim.SetBool("Sliding", false);
+                        }
+                        anim.SetBool("Pushing", false);
+                        anim.SetBool("Walking", false);
+                    }
+                    else if (Input.GetKey(KeyCode.RightArrow))
+                    {
+                        if (onWall[1])
+                        {
+                            anim.SetBool("Pushing", true);
+                            anim.SetBool("Walking", false);
+                        }
+                        else
+                        {
+                            anim.SetBool("Walking", true);
+                            anim.SetBool("Pushing", false);
+                        }
+                        anim.SetBool("Jumping", false);
                         anim.SetBool("Sliding", false);
                     }
-                    anim.SetBool("Pushing", false);
-                    anim.SetBool("Walking", false);
-                }
-                else if (Input.GetKey(KeyCode.RightArrow))
-                {
-                    if (onWall[1])
+                    else if (Input.GetKey(KeyCode.LeftArrow))
                     {
-                        anim.SetBool("Pushing", true);
-                        anim.SetBool("Walking", false);
+                        if (onWall[0])
+                        {
+                            anim.SetBool("Pushing", true);
+                            anim.SetBool("Walking", false);
+                        }
+                        else
+                        {
+                            anim.SetBool("Walking", true);
+                            anim.SetBool("Pushing", false);
+                        }
+                        anim.SetBool("Jumping", false);
+                        anim.SetBool("Sliding", false);
                     }
                     else
                     {
-                        anim.SetBool("Walking", true);
                         anim.SetBool("Pushing", false);
-                    }
-                    anim.SetBool("Jumping", false);
-                    anim.SetBool("Sliding", false);
-                }
-                else if (Input.GetKey(KeyCode.LeftArrow))
-                {
-                    if (onWall[0])
-                    {
-                        anim.SetBool("Pushing", true);
                         anim.SetBool("Walking", false);
+                        anim.SetBool("Jumping", false);
+                        anim.SetBool("Sliding", false);
                     }
-                    else
-                    {
-                        anim.SetBool("Walking", true);
-                        anim.SetBool("Pushing", false);
-                    }
-                    anim.SetBool("Jumping", false);
-                    anim.SetBool("Sliding", false);
                 }
                 else
                 {
+                    if (deadId == 0)
+                    {
+                        anim.SetBool("Hurt", true);
+                    }
+                    else
+                    {
+                        anim.SetInteger("DeadId", deadId);
+                    }
                     anim.SetBool("Pushing", false);
                     anim.SetBool("Walking", false);
                     anim.SetBool("Jumping", false);
                     anim.SetBool("Sliding", false);
                 }
-            }
-            else
-            {
-                if (deadId == 0)
+                anim.SetBool("Boogie", false);
+                if (Input.GetKey(KeyCode.B))
                 {
-                    anim.SetBool("Hurt", true);
+                    anim.SetBool("Boogie", true);
                 }
-                else
-                {
-                    anim.SetInteger("DeadId", deadId);
-                }
-                anim.SetBool("Pushing", false);
-                anim.SetBool("Walking", false);
-                anim.SetBool("Jumping", false);
-                anim.SetBool("Sliding", false);
-            }
-            anim.SetBool("Boogie", false);
-            if (Input.GetKey(KeyCode.B))
-            {
-                anim.SetBool("Boogie", true);
             }
         }
     }
@@ -280,6 +287,10 @@ public class Player : MonoBehaviour
             {
                 StartCoroutine(Respawn(2));
             }
+            else if (col.name == "End Trigger" && control)
+            {
+                StartCoroutine(End());
+            }
         }
     }
 
@@ -315,7 +326,7 @@ public class Player : MonoBehaviour
         }
         for (float fade = 0; fade < 1; fade += Time.deltaTime)
         {
-            screenFade.GetComponent<SpriteRenderer>().color = new Color(0, 0, 0, fade);
+            screenFade.color = new Color(0, 0, 0, fade);
             yield return 1;
         }
         hp = defaultHp;
@@ -329,7 +340,7 @@ public class Player : MonoBehaviour
         particles.active = false;
         for (float fade = 1; fade > 0; fade -= Time.deltaTime)
         {
-            screenFade.GetComponent<SpriteRenderer>().color = new Color(0, 0, 0, fade);
+            screenFade.color = new Color(0, 0, 0, fade);
             yield return 1;
         }
     }
@@ -360,5 +371,29 @@ public class Player : MonoBehaviour
         particles.active = false;
         invincible = false;
         healthBarSr.color = new Color(0, 0, 0, 0);
+    }
+
+    IEnumerator End()
+    {
+        control = false;
+        for (float value = 0; value < 1; value += Time.deltaTime / 2.5f)
+        {
+            screenFade.color = new Color(0, 0, 0, value);
+            yield return 1;
+        }
+        yield return new WaitForSeconds(1);
+        end = Instantiate(end, camera.transform);
+        for (float value = 1; value > 0; value -= Time.deltaTime / 2.5f)
+        {
+            screenFade.color = new Color(0, 0, 0, value);
+            yield return 1;
+        }
+        yield return new WaitForSeconds(2);
+        exit = Instantiate(exit, camera.transform);
+        for (float value = 0; value < 1; value += Time.deltaTime / 1.5f)
+        {
+            exit.GetComponent<CanvasGroup>().alpha = value;
+            yield return 1;
+        }
     }
 }

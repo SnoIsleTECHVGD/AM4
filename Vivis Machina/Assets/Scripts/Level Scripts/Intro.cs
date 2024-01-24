@@ -50,9 +50,9 @@ public class Intro : MonoBehaviour
         }
         ratAnim.SetTrigger("Jump");
         ratStart = rat.transform.position;
-        while (t < 5.5f)
+        while (t < 5.4f)
         {
-            rat.transform.position = ratStart - new Vector2((t - 5f) / 1.7f, -Mathf.Sin((t - 5f) * Mathf.PI) / 5f);
+            rat.transform.position = ratStart - new Vector2((t * 1.5f - 7.5f) / 2f, -Mathf.Sin((t * 1.5f - 7.5f) * Mathf.PI) / 5f);
             yield return 1;
         }
         Destroy(rat);

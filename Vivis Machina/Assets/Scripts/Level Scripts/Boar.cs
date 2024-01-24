@@ -52,7 +52,7 @@ public class Boar : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D col)
     {
-        if (!col.isTrigger)
+        if (!col.isTrigger && col.name != "Player")
         {
             if (direction == 1)
             {
