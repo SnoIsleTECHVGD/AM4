@@ -4980,7 +4980,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 1.6
   jumpForce: 2.9
-  ease: 2
+  ease: 3.2
   wallJumpForce: 1.2
   defaultHp: 3
   rb: {fileID: 6620247513514147100}
@@ -4994,6 +4994,8 @@ MonoBehaviour:
   healthBars:
   - {fileID: -3178617384780871938, guid: 9625c280221403844b5d470dd88088c7, type: 3}
   - {fileID: -8227546954408941770, guid: 9625c280221403844b5d470dd88088c7, type: 3}
+  end: {fileID: 0}
+  exit: {fileID: 0}
 --- !u!95 &6620247513514147088
 Animator:
   serializedVersion: 3

@@ -7,6 +7,8 @@ public class UiButtons : MonoBehaviour
 {
     public void Play()
     {
+        Player.respawnPos = Vector2.zero;
+        Player.pos = Vector2.zero;
         SceneManager.LoadScene("Screen1");
     }
     public void Quit()

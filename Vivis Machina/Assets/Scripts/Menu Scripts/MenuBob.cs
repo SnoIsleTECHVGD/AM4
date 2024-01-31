@@ -8,12 +8,17 @@ public class MenuBob : MonoBehaviour
     public float height;
     public float startTime;
     public float offsetY;
+    public bool refreshCamera;
 
     float t;
 
     private void Start()
     {
         t = startTime;
+        if (refreshCamera)
+        {
+            CameraMove.pos = Vector2.zero;
+        }
     }
 
     void Update()
